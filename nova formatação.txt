@@ -1,0 +1,70 @@
+# procedimento descrito
+**Variáveis Consideradas:**
+
+Nossa análise utiliza quatro variáveis distintas, cada uma refletindo diferentes aspectos relacionados a direitos políticos e discursos:
+
+1. **Direito de Concorrência à Presidência pelo PT (`dirPT`):** Esta variável indica se um candidato do Partido dos Trabalhadores (PT) possui o direito de concorrer à presidência. [originalmente a P22 do Banco]
+
+2. **Direito de Concorrência à Presidência pelo PL de Bolsonaro (`dirPLBolsonaro`):** Esta variável indica se um candidato do Partido Liberal (PL), partido do presidente Bolsonaro, possui o direito de concorrer à presidência.[originalmente a P24 do Banco]
+
+3. **Direito de Discurso de um Petista (`PT_dir_discurso`):** Essa variável representa o direito de um membro ou simpatizante do PT realizar discursos. [originalmente a P31 do Banco]
+
+4. **Direito de Discurso de um Bolsonarista (`Bolsonarista_dir_discurso`):** Essa variável representa o direito de um membro ou simpatizante do presidente Bolsonaro realizar discursos.[originalmente a P32 do Banco]
+
+**Criação da Variável `x` com Base nas Condições:**
+
+Para criar a variável `x` com valores entre -2 e 2, seguimos as seguintes regras:
+
+- Se `dirPLBolsonaro` for igual a "0-3" E `Bolsonarista_dir_discurso` for igual a "Não", E `dirPT` for igual a "0-3" E `PT_dir_discurso` for igual a "Não", então atribuímos o valor 'NA (desconsideramos esses casos)' a `x`. Isso reflete a condição em que nenhuma das partes (PT ou PL) tem direito de concorrer à presidência e nenhum petista ou bolsonarista tem o direito de discursar.
+
+- Se `dirPT` for igual a "0-3" E `PT_dir_discurso` for igual a "Não", então atribuímos o valor '-2' a `x`. Isso indica que, embora o PT tenha o direito de concorrer à presidência, ninguém no partido possui o direito de fazer discursos.
+
+- Se `dirPLBolsonaro` for igual a "0-3" E `Bolsonarista_dir_discurso` for igual a "Não", então atribuímos o valor '2' a `x`. Isso representa a situação em que o PL de Bolsonaro tem o direito de concorrer à presidência, mas nenhum bolsonarista tem o direito de fazer discursos.
+
+- Se `dirPT` for igual a "0-3" OU `PT_dir_discurso` for igual a "Não", então atribuímos o valor '-1' a `x`. Isso abrange casos em que o PT tem o direito de concorrer à presidência ou algum petista tem o direito de fazer discursos.
+
+- Se `dirPLBolsonaro` for igual a "0-3" OU `Bolsonarista_dir_discurso` for igual a "Não", então atribuímos o valor '1' a `x`. Isso reflete a situação em que o PL de Bolsonaro tem o direito de concorrer à presidência ou algum bolsonarista tem o direito de fazer discursos.
+
+- Em todos os outros casos, atribuímos o valor '0' a `x`. Isso engloba situações em que nenhuma das condições anteriores se aplica.
+
+Dessa forma, a variável `x` é criada e preenchida de acordo com as condições especificadas no enunciado, refletindo os diferentes cenários relacionados aos direitos políticos e discursos das partes envolvidas.
+
+
+
+Procedimento em código
+Tenho 4 variáveis
+
+df$dirPT # direito de concorrer a presidência PT
+df$dirPLBolsonaro  # direito de concorrer a presidência PL de Bolsonaro
+df$PT_dir_discurso # direito de um petista discursar
+df$Bolsonarista_dir_discurso # direito de um bolsonarista discursar
+
+
+Quero criar df$x, do tipo numérica que vá de -2 a 2
+
+NA quando df$dirPLBolsonaro  == "0-3" E df$Bolsonarista_dir_discurso = "Não" E df$dirPT  == "0-3" E df$PT_dir_discurso = "Não"
+valor '-2' quando df$dirPT  == "0-3" E df$PT_dir_discurso = "Não"
+valor '2' quando df$dirPLBolsonaro  == "0-3" E df$Bolsonarista_dir_discurso = "Não" 
+valor '-1'  quando df$dirPT  == "0-3" OU df$PT_dir_discurso = "Não"
+
+valor '1' quando df$dirPLBolsonaro  == "0-3" OU df$Bolsonarista_dir_discurso = "Não"
+
+valor '0' quando não se encaixar nas demais condições
+
+
+df$x <- ifelse(df$dirPLBolsonaro == "0-3" & df$Bolsonarista_dir_discurso == "Não" & df$dirPT == "0-3" & df$PT_dir_discurso == "Não", NA,
+               ifelse(df$dirPT == "0-3" & df$PT_dir_discurso == "Não", -2,
+               ifelse(df$dirPLBolsonaro == "0-3" & df$Bolsonarista_dir_discurso == "Não", 2,
+               ifelse(df$dirPT == "0-3" | df$PT_dir_discurso == "Não", -1,
+               ifelse(df$dirPLBolsonaro == "0-3" | df$Bolsonarista_dir_discurso == "Não", 1, 0)))))
+
+
+# depois criamos um de tipo categorial
+
+df$x_factor <- factor(df$x, levels = c(-2, -1, 0, 1, 2),
+                      labels = c("AntiPetista Forte", "AntiPetista Moderado", "Neutro", "Antibolsonarista Moderado", "Antibolsonarista Forte"))
+table(df$x_factor, useNA = "always")
+
+
+#df$x para trabalhar como uma variável numérica que vai do antipetismo ao antibolsonarismo
+#df$x_factor para trabalhar como uma variável em 5 categorias
